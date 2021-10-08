@@ -12,7 +12,7 @@ library(ggplot2)
 library(nnet)
 
 #mdl <- NULL
-load(file = "recmodel.rda")
+mdl <- readRDS(file = "multinomialmodel.rds")
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
@@ -28,7 +28,7 @@ ui <- fluidPage(
             selectInput("Edu","Highest degree", choices = c("High school", "Technical", "Undergraduation")),
             selectInput("PGG","Preferred Game genre", choices = c("Action", "Adventure", "RPG", "Strategy")),
             selectInput("PPS","Preferred Playing Setting", choices = c("Multiplayer", "Singleplayer")),
-            sliderInput("sliderWPT","Weekly Playing Time (hours)", min=0, max=112, step=1, value=1)
+            #sliderInput("sliderWPT","Weekly Playing Time (hours)", min=0, max=112, step=1, value=1)
             
         ),
 
@@ -46,13 +46,13 @@ server <- function(input, output) {
         # transforms input into a dataframe with one row
         row <- data.frame(intrinsic_motivation = c(0))
         #row$motivated <- ifelse(input$sliderIM > 0, "TRUE", "FALSE")
-        row$intrinsic_motivation <- input$sliderIM
-        row$age <- input$sliderAge
+        row$intrinsic_motivation <- input$sliderIM - 1
+        row$age_cat <- ifelse(input$sliderAge <= 20, 0, 1)
         row$gender <- input$Gender
         row$educationlevel <- input$Edu
         row$prefgamegenre <- input$PGG
         row$prefplayingsetting <- input$PPS
-        row$weeklyplayingtime <- input$sliderWPT
+        #row$weeklyplayingtime <- ifelse(input$sliderWPT <= 7, 0, 1)
         # passes to 'newdata'
         preds <- predict(mdl, newdata = row, "probs")
         df <- data.frame(prob = preds, design = c("PBL", "AOP", "AOS", "CCT"))
